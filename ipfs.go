@@ -56,6 +56,12 @@ type Config struct {
 	// broadcast its list of wanted blocks. Defaults to 64. It is possible
 	// to disable broadcasts to random peers by setting it to -1.
 	BitswapBroadcastMaxRandomPeers int
+	// BitswapBroadcastControlSendToPendingPeers enables or disables sending
+	// Bitswap broadcasts to any peers to which there is a pending message to
+	// send. Useful in small clusters where the limited peer set makes
+	// broadcasting to pending peers beneficial for timely block discovery.
+	// Default is false.
+	BitswapBroadcastControlSendToPendingPeers bool
 }
 
 func (cfg *Config) setDefaults() {
@@ -179,7 +185,7 @@ func (p *Peer) setupBlockService() error {
 		bitswap.WithClientOption(client.BroadcastControlLocalPeers(false)),
 		bitswap.WithClientOption(client.BroadcastControlPeeredPeers(false)),
 		bitswap.WithClientOption(client.BroadcastControlMaxRandomPeers(p.cfg.BitswapBroadcastMaxRandomPeers)),
-		bitswap.WithClientOption(client.BroadcastControlSendToPendingPeers(false)),
+		bitswap.WithClientOption(client.BroadcastControlSendToPendingPeers(p.cfg.BitswapBroadcastControlSendToPendingPeers)),
 	)
 	p.bserv = blockservice.New(p.bstore, bswap)
 	p.exch = bswap
